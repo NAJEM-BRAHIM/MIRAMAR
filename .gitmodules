@@ -7,3 +7,8 @@
 	path = OCA/stock-logistics-warehouse
 	url = git@github.com:OCA/stock-logistics-warehouse.git
 	branch = 13.0
+
+[submodule "OCA/l10n-spain"]
+	path = OCA/l10n-spain
+	url = git@github.com:OCA/l10n-spain.git
+	branch = 13.0
