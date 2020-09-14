@@ -2,3 +2,8 @@
 	path = OCA/commission
 	url = git@github.com:OCA/commission.git
 	branch = 13.0
+
+[submodule "OCA/stock-logistics-warehouse"]
+	path = OCA/stock-logistics-warehouse
+	url = git@github.com:OCA/stock-logistics-warehouse.git
+	branch = 13.0
