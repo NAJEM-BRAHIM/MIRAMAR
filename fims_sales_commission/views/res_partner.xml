@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    <!--res partner form view inherit-->
+    <record id="res_partner_form_view_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <field name="property_payment_term_id" position="after">
+                <field name="affiliated"/>
+            </field>
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button type="action" class="oe_stat_button" icon="fa-pencil-square-o" name="%(fims_sales_commission.action_commission_line)d" context="{'search_default_sales_person_partner_id': active_id}">
+                    <div class="o_form_field o_stat_info" modifiers="{}">
+                        <span class="o_stat_value" modifiers="{}">
+                            <field name="commission_counter" widget="monetary"/>
+
+					    </span>
+                        <span class="o_stat_text" modifiers="{}">
+						    Commission
+					    </span>
+				    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+    </data>
+</odoo>

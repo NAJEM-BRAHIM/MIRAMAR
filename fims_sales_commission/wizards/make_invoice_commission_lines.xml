@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="commission_line_create_inv_wizard" model="ir.ui.view">
+	        <field name="name">wizard form</field>
+	        <field name="model">commission.lines.create.inv</field>
+	        <field name="arch" type="xml">
+	            <form string="Create Invoice">
+	                <group>
+	                    <field name="group_by"/>
+	                    <field name="active_ids" invisible="1"/>
+	                </group>
+	                <footer>
+	                    <button name="create_invoice" type="object"
+	                        string="Create Invoice" class="oe_highlight"/>
+	                    or
+	
+	                    <button special="cancel" string="Cancel"/>
+	                </footer>
+	            </form>
+	        </field>
+	    </record>
+        <record id="action_invoice_account_fims_commission" model="ir.actions.act_window">
+            <field name="name">Create Invoice</field>
+            <field name="res_model">commission.lines.create.inv</field>
+            <field name="view_id" ref="commission_line_create_inv_wizard"/>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="binding_model_id" ref="fims_sales_commission.model_commission_lines" />
+        </record>
+    </data>
+</odoo>
