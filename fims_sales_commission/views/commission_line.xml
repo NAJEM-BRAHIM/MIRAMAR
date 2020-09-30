@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="commission_lines_form_view" model="ir.ui.view">
+            <field name="name">Commission Lines</field>
+            <field name="model">commission.lines</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="create_invoice" string="Create Invoice" type="object" class="btn-primary" attrs="{'invisible': [('invoice_id', '!=', False)]}"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button type="object" class="oe_stat_button" name="view_invoice" icon="fa-pencil-square-o">
+                                <div class="o_form_field o_stat_info" modifiers="{}">
+                                    <span class="o_stat_value" modifiers="{}">
+                                        <field name="invoice_counter" widget="monetary"/>
+                                    </span>
+                                    <span class="o_stat_text" modifiers="{}">
+                                        Invoice
+                                    </span>
+                                </div>
+                            </button>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="invoice_id" invisible="1"/>
+                                <field name="date"/>
+                                <field name="description"/>
+                                <field name="user_id"/>
+                                <field name="sales_person_partner_id" invisible="1"/>
+                                <field name="invoice_reference"/>
+                                <field name="order_reference"/>
+                            </group>
+                            <group>
+                                <field name="sale_commission"/>
+                                <field name="commission_name"/>
+                                <field name="commission_type"/>
+                                <field name="partner_id"/>
+                                <field name="commission_amount"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!--commission line tree view-->
+        <record id="commission_lines_tree_view" model="ir.ui.view">
+            <field name="name">Commission Lines</field>
+            <field name="model">commission.lines</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="invoice_id" invisible="1"/>
+                    <field name="date"/>
+                    <field name="description"/>
+                    <field name="user_id"/>
+                    <field name="sales_person_partner_id" invisible="1"/>
+                    <field name="invoice_reference"/>
+                    <field name="order_reference"/>
+                    <field name="sale_commission"/>
+                    <field name="commission_name"/>
+                    <field name="commission_type"/>
+                    <field name="partner_id"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="commission_amount" sum="Total" widget="monetary"/>
+                </tree>
+            </field>
+        </record>
+        <record id="commission_lines_search_view" model="ir.ui.view">
+            <field name="name">comission.lines.search</field>
+            <field name="model">commission.lines</field>
+            <field name="arch" type="xml">
+                <search>
+                    <filter name="standard_commission" string="Standard Commission"
+                            domain="[('commission_type', 'ilike', 'standard')]"/>
+                    <filter name="standard_commission" string="Partner Based Commission"
+                            domain="[('commission_type', 'ilike', 'partner')]"/>
+                    <filter name="standard_commission" string="Product/Category Based Commission"
+                            domain="[('commission_type', 'ilike', 'product/category')]"/>
+                    <group>
+                        <filter name="my_commission" string="My Commission"
+                            context="{'group_by': 'user_id'}"/>
+                    </group>
+                    <group>
+                        <filter name="commission_type" string="Commission Type"
+                            context="{'group_by': 'commission_type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <!--commission line menu action-->
+        <record id="action_commission_line" model="ir.actions.act_window">
+            <field name="name">Commission Lines</field>
+            <field name="res_model">commission.lines</field>
+<!--            <field name="view_type">form</field>-->
+            <field name="view_mode">tree,form,search</field>
+            <field name="context" eval="{'search_default_my_commission': 1}"/>
+        </record>
+        <menuitem id="commission_lines"
+                name="Commission Lines"
+                parent="sale.menu_sale_config"
+                action="action_commission_line"
+                sequence="4"/>
+    </data>
+</odoo>

@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+commission_lines_salesman,commission.lines,model_commission_lines,sales_team.group_sale_salesman,1,0,1,0
+commission_lines_all,commission.lines,model_commission_lines,sales_team.group_sale_salesman_all_leads,1,1,1,0
+sales_commission_salesman,sales.commission,model_sales_commission,sales_team.group_sale_salesman,1,0,0,0
+sales_commission_all,sales.commission,model_sales_commission,sales_team.group_sale_salesman_all_leads,1,1,1,1
+sales_commission_line,sales.commission.line,model_sales_commission_line,,1,1,1,1
+sales_commission_invoice_line,sales.commission.invoice.line,model_sales_commission_invoice_line,,1,1,1,1
+sales_commission_info,sales.commission.info,model_sales_commission_info,,1,1,1,1
+commission_line_create_report,commission.line.create.report,model_commission_line_create_report,,1,1,1,1
+
