@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="invoice_form_inh" model="ir.ui.view">
+        <field name="name">invoice.form.inh</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='quantity']" position="after">
+                <field name='virtual_box' invisible="1"/>
+                <field name='qty_box' attrs="{'readonly': [('virtual_box', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
