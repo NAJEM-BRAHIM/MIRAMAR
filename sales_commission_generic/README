@@ -1,0 +1,13 @@
+
+
+Version 13.0.1.0 : (29-01-2020)
+		- Update security,add group for manager and user, and add record rule.
+		- Remove commission line on cancel of invoice or sale.
+
+=> 13.0.1.1 :  Improved index module link or add live test URL link.
+
+=> 13.0.1.2 : Improved security file to solve installation error.
+
+=> 13.0.1.3 : Improved security XML file to solve installation error.  
+
+==>13.0.1.4 : - When I use a margin-based commission, the commission is still calculated based on the product price and not the margin.
