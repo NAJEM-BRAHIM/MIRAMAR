@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="purchase_order_form_cust" model="ir.ui.view">
+        <field name="name">purchase.order.form.custom</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']//tree//field[@name='product_qty']" position="after">
+                <field name='virtual_box' invisible="1" />
+                <field name='qty_box' attrs="{'readonly': [('virtual_box', '=', False)]}" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

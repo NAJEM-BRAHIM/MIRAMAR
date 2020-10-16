@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_cust" inherit_id="account.report_invoice_document">
+        <xpath expr="//th[@name='th_quantity']" position="after">
+            <th name="th_virtual_quantity" class="text-right">Cajas</th>
+        </xpath>
+        <xpath expr="//span[@t-field='line.quantity']/.." position="after">
+            <td name="td_quantity" class="text-right">
+                <span t-field="line.qty_box"/>
+            </td>
+        </xpath>
+    </template>
+</odoo>

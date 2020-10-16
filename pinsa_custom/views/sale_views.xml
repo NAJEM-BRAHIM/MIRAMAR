@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_inh" model="ir.ui.view">
+        <field name="name">view.order.form.inh</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']//tree//field[@name='product_uom_qty']" position="after">
+                <field name='virtual_box' invisible="1"/>
+                <field name='qty_box' attrs="{'readonly': [('virtual_box', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+    <record id='product_template_form_view_inherit' model='ir.ui.view'>
+        <field name="name">product.template.common.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name='inherit_id' ref='product.product_template_form_view'/>
+        <field name='arch' type="xml">
+            <xpath expr="//div[@name='options']" position="inside">
+                <div>
+                    <field name="can_be_virtual"/>
+                    <label for="can_be_virtual"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
