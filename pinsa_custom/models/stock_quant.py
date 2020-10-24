@@ -1,13 +1,116 @@
 # -*- coding: utf-8 -*-
 
-from psycopg2 import OperationalError
+from psycopg2 import OperationalError, Error
 from odoo import api, fields, models
+from odoo.tools.float_utils import float_compare
+
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class StockQuant(models.Model):
     _inherit = 'stock.quant'
 
     qty_box = fields.Float('Box Qty')
+
+    @api.model
+    def _merge_quants(self):
+        """ In a situation where one transaction is updating a quant via
+        `_update_available_quantity` and another concurrent one calls this function with the same
+        argument, we’ll create a new quant in order for these transactions to not rollback. This
+        method will find and deduplicate these quants.
+        """
+        query = """WITH
+                        dupes AS (
+                            SELECT min(id) as to_update_quant_id,
+                                (array_agg(id ORDER BY id))[2:array_length(array_agg(id), 1)] as to_delete_quant_ids,
+                                SUM(reserved_quantity) as reserved_quantity,
+                                SUM(quantity) as quantity,
+                                SUM(qty_box) as qty_box,
+                            FROM stock_quant
+                            GROUP BY product_id, company_id, location_id, lot_id, package_id, owner_id, in_date
+                            HAVING count(id) > 1
+                        ),
+                        _up AS (
+                            UPDATE stock_quant q
+                                SET quantity = d.quantity,
+                                    reserved_quantity = d.reserved_quantity,
+                                    qty_box = d.qty_box
+                            FROM dupes d
+                            WHERE d.to_update_quant_id = q.id
+                        )
+                   DELETE FROM stock_quant WHERE id in (SELECT unnest(to_delete_quant_ids) from dupes)
+        """
+        try:
+            with self.env.cr.savepoint():
+                self.env.cr.execute(query)
+        except Error as e:
+            _logger.info('an error occured while merging quants: %s', e.pgerror)
+
+    def write(self, vals):
+        """ Override to handle the "inventory mode" and create the inventory move. """
+        if 'qty_box' in vals:
+            self = self.sudo()
+        return super(StockQuant, self).write(vals)
+
+    @api.onchange('location_id', 'product_id', 'lot_id', 'package_id', 'owner_id', 'qty_box')
+    def _onchange_location_or_product_id(self):
+        vals = {}
+
+        # Once the new line is complete, fetch the new theoretical values.
+        if self.product_id and self.location_id:
+            # Sanity check if a lot has been set.
+            if self.lot_id:
+                if self.tracking == 'none' or self.product_id != self.lot_id.product_id:
+                    vals['lot_id'] = None
+
+            quants = self._gather(self.product_id, self.location_id, lot_id=self.lot_id, package_id=self.package_id, owner_id=self.owner_id, strict=True)
+            reserved_quantity = sum(quants.mapped('reserved_quantity'))
+            quantity = sum(quants.mapped('quantity'))
+
+            vals['reserved_quantity'] = reserved_quantity
+            vals['qty_box'] = self.qty_box
+            # Update `quantity` only if the user manually updated `inventory_quantity`.
+            if float_compare(self.quantity, self.inventory_quantity, precision_rounding=self.product_uom_id.rounding) == 0:
+                vals['quantity'] = quantity
+            # Special case: directly set the quantity to one for serial numbers,
+            # it'll trigger `inventory_quantity` compute.
+            if self.lot_id and self.tracking == 'serial':
+                vals['quantity'] = 1
+        if vals:
+            self.update(vals)
+
+    @api.model
+    def create(self, vals):
+        res = super(StockQuant, self).create(vals)
+        if 'qty_box' in vals:
+            product = self.env['product.product'].browse(vals['product_id'])
+            location = self.env['stock.location'].browse(vals['location_id'])
+            lot_id = self.env['stock.production.lot'].browse(vals.get('lot_id'))
+            package_id = self.env['stock.quant.package'].browse(vals.get('package_id'))
+            owner_id = self.env['res.partner'].browse(vals.get('owner_id'))
+            quant = self._gather(product, location, lot_id=lot_id, package_id=package_id, owner_id=owner_id, strict=True)
+            if quant:
+                quant = quant[0]
+            else:
+                quant = self.sudo().create(vals)
+            # Set the `inventory_quantity` field to create the necessary move.
+            quant.qty_box = self.qty_box
+        return res
+
+    @api.model
+    def _get_inventory_fields_write(self):
+        """ Returns a list of fields user can edit when he want to edit a quant in `inventory_mode`.
+        """
+        return ['inventory_quantity', 'qty_box']
+
+    @api.model
+    def _get_inventory_fields_create(self):
+        """ Returns a list of fields user can edit when he want to create a quant in `inventory_mode`.
+        """
+        return ['product_id', 'location_id', 'lot_id', 'package_id', 'owner_id', 'inventory_quantity', 'qty_box']
+
 
     # Override the method
     @api.model
@@ -39,7 +142,6 @@ class StockQuant(models.Model):
             in_date = fields.Datetime.to_string(min(incoming_dates))
         else:
             in_date = fields.Datetime.now()
-
         for quant in quants:
             try:
                 with self._cr.savepoint():
@@ -48,7 +150,7 @@ class StockQuant(models.Model):
                         'quantity': quant.quantity + quantity,
                         'in_date': in_date,
                         # Customisation Start
-                        'qty_box': quant.qty_box + self.env.context.get('pinsa_qty_box') if self.env.context.get('pinsa_qty_box') else 0.0
+                        # 'qty_box': quant.qty_box + self.env.context.get('pinsa_qty_box') if self.env.context.get('pinsa_qty_box') else 0.0
                         # Customisation End
                     })
                     break
@@ -67,7 +169,7 @@ class StockQuant(models.Model):
                 'owner_id': owner_id and owner_id.id,
                 'in_date': in_date,
                 # Customisation Start
-                'qty_box': self.env.context.get('pinsa_qty_box')
+                # 'qty_box': self.env.context.get('pinsa_qty_box')
                 # Customisation End
             })
         return self._get_available_quantity(product_id, location_id, lot_id=lot_id, package_id=package_id, owner_id=owner_id, strict=False, allow_negative=True), fields.Datetime.from_string(in_date)

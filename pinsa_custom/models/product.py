@@ -7,6 +7,7 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     can_be_virtual = fields.Boolean(string="caja virtual")
+    qty_box = fields.Float(string='Qty Box')
 
     @api.model
     def search(self, args, offset=0, limit=None, order=None, count=False):
