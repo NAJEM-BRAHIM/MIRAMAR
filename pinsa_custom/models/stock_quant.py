@@ -14,47 +14,13 @@ class StockQuant(models.Model):
 
     qty_box = fields.Float('Box Qty')
 
-    @api.model
-    def _merge_quants(self):
-        """ In a situation where one transaction is updating a quant via
-        `_update_available_quantity` and another concurrent one calls this function with the same
-        argument, we’ll create a new quant in order for these transactions to not rollback. This
-        method will find and deduplicate these quants.
-        """
-        query = """WITH
-                        dupes AS (
-                            SELECT min(id) as to_update_quant_id,
-                                (array_agg(id ORDER BY id))[2:array_length(array_agg(id), 1)] as to_delete_quant_ids,
-                                SUM(reserved_quantity) as reserved_quantity,
-                                SUM(quantity) as quantity,
-                                SUM(qty_box) as qty_box,
-                            FROM stock_quant
-                            GROUP BY product_id, company_id, location_id, lot_id, package_id, owner_id, in_date
-                            HAVING count(id) > 1
-                        ),
-                        _up AS (
-                            UPDATE stock_quant q
-                                SET quantity = d.quantity,
-                                    reserved_quantity = d.reserved_quantity,
-                                    qty_box = d.qty_box
-                            FROM dupes d
-                            WHERE d.to_update_quant_id = q.id
-                        )
-                   DELETE FROM stock_quant WHERE id in (SELECT unnest(to_delete_quant_ids) from dupes)
-        """
-        try:
-            with self.env.cr.savepoint():
-                self.env.cr.execute(query)
-        except Error as e:
-            _logger.info('an error occured while merging quants: %s', e.pgerror)
-
     def write(self, vals):
         """ Override to handle the "inventory mode" and create the inventory move. """
-        if 'qty_box' in vals:
+        if 'qty_box' or 'lot_id' in vals:
             self = self.sudo()
         return super(StockQuant, self).write(vals)
 
-    @api.onchange('location_id', 'product_id', 'lot_id', 'package_id', 'owner_id', 'qty_box')
+    @api.onchange('location_id', 'product_id', 'package_id', 'owner_id', 'qty_box')
     def _onchange_location_or_product_id(self):
         vals = {}
 
@@ -64,11 +30,9 @@ class StockQuant(models.Model):
             if self.lot_id:
                 if self.tracking == 'none' or self.product_id != self.lot_id.product_id:
                     vals['lot_id'] = None
-
             quants = self._gather(self.product_id, self.location_id, lot_id=self.lot_id, package_id=self.package_id, owner_id=self.owner_id, strict=True)
             reserved_quantity = sum(quants.mapped('reserved_quantity'))
             quantity = sum(quants.mapped('quantity'))
-
             vals['reserved_quantity'] = reserved_quantity
             vals['qty_box'] = self.qty_box
             # Update `quantity` only if the user manually updated `inventory_quantity`.
@@ -103,14 +67,13 @@ class StockQuant(models.Model):
     def _get_inventory_fields_write(self):
         """ Returns a list of fields user can edit when he want to edit a quant in `inventory_mode`.
         """
-        return ['inventory_quantity', 'qty_box']
+        return ['inventory_quantity', 'qty_box', 'lot_id']
 
     @api.model
     def _get_inventory_fields_create(self):
         """ Returns a list of fields user can edit when he want to create a quant in `inventory_mode`.
         """
         return ['product_id', 'location_id', 'lot_id', 'package_id', 'owner_id', 'inventory_quantity', 'qty_box']
-
 
     # Override the method
     @api.model
