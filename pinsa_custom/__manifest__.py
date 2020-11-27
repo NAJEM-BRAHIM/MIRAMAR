@@ -28,7 +28,7 @@
     'data': [
         'reports/sale_report_templates.xml',
         'reports/invoice_report_templates.xml',
-        # 'reports/report_deliveryslip.xml',
+        'reports/report_deliveryslip.xml',
         'views/account_move_views.xml',
         'views/res_users_views.xml',
         'views/sale_views.xml',
