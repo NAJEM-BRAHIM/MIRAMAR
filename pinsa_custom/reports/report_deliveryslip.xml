@@ -2,7 +2,7 @@
 <odoo>
     <template id="report_delivery_document_cust" inherit_id="stock.report_delivery_document">
         <xpath expr="//table[@name='stock_move_table']//th[@name='th_sm_product']" position="after">
-            <th name="th_virtual_quantity">Cajas non Q.box</th>
+            <th name="th_virtual_quantity">CAJAS</th>
         </xpath>
         <xpath expr="//span[@t-field='move.product_id']/.." position="after">
             <td>
@@ -10,7 +10,7 @@
             </td>
         </xpath>
         <xpath expr="//table[@name='stock_move_line_table']//th[@name='th_sml_product']" position="after">
-            <th name="th_virtual_quantity" class="text-center"><strong>Cajas non Q.box</strong></th>
+            <th name="th_virtual_quantity" class="text-center"><strong>CAJAS</strong></th>
         </xpath>
         <xpath expr="//span[@t-field='move_line.product_id']/.." position="after">
             <td class="text-center">
