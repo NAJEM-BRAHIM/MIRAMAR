@@ -6,10 +6,10 @@
         </xpath>
         <xpath expr="//span[@t-field='move.product_id']/.." position="after">
             <td>
-                <span t-field="line.qty_box"/>
+                <span t-field="move.qty_box"/>
             </td>
         </xpath>
-        <xpath expr="//table[@name='stock_move_line_table']//th[@name='th_sm_product']" position="after">
+        <xpath expr="//table[@name='stock_move_line_table']//th[@name='th_sml_product']" position="after">
             <th name="th_virtual_quantity" class="text-center"><strong>Cajas non Q.box</strong></th>
         </xpath>
         <xpath expr="//span[@t-field='move_line.product_id']/.." position="after">
