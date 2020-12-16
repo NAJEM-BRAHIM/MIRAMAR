@@ -17,5 +17,4 @@
     'data': [
         'views/product_views.xml',
     ],
-    'post_init_hook': 'set_sale_price_on_variant',
 }
