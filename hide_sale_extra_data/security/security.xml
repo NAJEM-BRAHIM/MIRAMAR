@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<odoo>
+	<data>
+		<record id="group_hide_sale_detail" model="res.groups">
+	        <field name="name">Sale: Specific Data Only</field>
+	    </record>
+	</data>
+</odoo>
