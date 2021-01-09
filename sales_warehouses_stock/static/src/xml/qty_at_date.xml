@@ -1,0 +1,49 @@
+<templates>
+    <div t-extend="sale_stock.QtyDetailPopOver">
+        <t t-jquery="tbody" t-operation='replace'>
+            <tbody>
+                <t t-if="!data.is_mto">
+                    <t t-if="!data.qty_per_warehouse_ids">
+                        <tr>
+                            <td><strong>Forecasted Stock</strong><br /><small>On <span t-esc="data.delivery_date"/></small></td>
+                            <td><t t-esc='data.virtual_available_at_date'/>
+                            <t t-esc='data.product_uom.data.display_name'/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Available</strong><br /><small>All planned operations included</small></td>
+                            <td><t t-esc='data.free_qty_today'/>
+                            <t t-esc='data.product_uom.data.display_name'/></td>
+                        </tr>
+                    </t>
+                    <t t-else="">
+                        <t t-set="product_uom" t-value="data.product_uom.data.display_name"/>
+                        <t t-set="delivery_date" t-value="data.delivery_date"/>
+                        <t t-foreach="data.qty_per_warehouse_ids.data" t-as="warehouse_record">
+                            <tr>
+                                <td colspan="2"><strong><t t-esc="warehouse_record.data.warehouse_id.data.display_name"/></strong></td>
+                            </tr>
+                            <tr>
+                                <td><span>Forecasted Stock</span><br /><small>On <span t-esc="delivery_date"/></small></td>
+                                <td><t t-esc='warehouse_record.data.virtual_available'/> <t t-esc='product_uom'/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span>Available</span><br /><small>All planned operations included</small></td>
+                                <td><t t-esc='warehouse_record.data.free_qty'/> <t t-esc='product_uom'/></td>
+                            </tr>
+                        </t>
+                    </t>
+                </t>
+                <t t-else="">
+                    <tr>
+                        <td><strong>Expected Delivery</strong></td>
+                        <td class="oe-right"><span t-esc="data.delivery_date"/></td>
+                    </tr>
+                    <tr>
+                        <p>This product is replenished on demand.</p>
+                    </tr>
+                </t>
+            </tbody>
+        </t>
+    </div>
+</templates>

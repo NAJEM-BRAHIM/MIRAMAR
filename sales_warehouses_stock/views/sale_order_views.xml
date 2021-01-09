@@ -1,0 +1,21 @@
+<odoo>
+  <data>
+    <record id="sale_order_form_warehouse_stock" model="ir.ui.view">
+        <field name="name">sale.order.form.warehouse_stock</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/tree/field[@name='company_id']" position="after">
+                <field name="qty_per_warehouse_ids" invisible="1">
+                    <tree>
+                        <field name="warehouse_id" />
+                        <field name="qty_available" />
+                        <field name="free_qty" />
+                        <field name="virtual_available" />
+                    </tree>
+                </field>
+            </xpath>
+        </field>
+    </record>
+  </data>
+</odoo>
