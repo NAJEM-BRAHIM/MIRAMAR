@@ -27,3 +27,8 @@
 	path = OCA/credit-control
 	url = git@github.com:OCA/credit-control.git
 	branch = 13.0
+
+[submodule "OCA/account-financial-tools"]
+	path = OCA/account-financial-tools
+	url = git@github.com:OCA/account-financial-tools.git
+	branch = 13.0
