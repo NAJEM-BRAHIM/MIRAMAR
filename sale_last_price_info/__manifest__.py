@@ -15,7 +15,7 @@
         "Ana Juaristi <anajuaristi@avanzosc.es>",
         "Serpent Consulting Services Pvt. Ltd. <support@serpentcs.com>",
     ],
-    "depends": ["sale_management"],
+    "depends": ["sale_management", "hide_sale_extra_data"],
     "data": ["views/product_view.xml"],
     "installable": True,
 }
