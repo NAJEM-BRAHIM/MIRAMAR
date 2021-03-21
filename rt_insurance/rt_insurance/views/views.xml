@@ -1,0 +1,26 @@
+<odoo>
+  <data>
+    <record id="account_page_insurance_form" model="ir.ui.view">
+        <field name="name">account.insurance.form</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='other_info']/group/group/field[@name='invoice_partner_bank_id']" position='after'>
+              <field name="vat"/>
+              <field name="insurance_credit_limit"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="account_page_insurance_tree" model="ir.ui.view">
+        <field name="name">account.insurance.tree</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_payment_state']" position="after">
+              <field name="vat"/>
+              <field name="insurance_credit_limit"/>
+            </xpath>
+        </field>
+    </record>
+  </data>
+</odoo>
